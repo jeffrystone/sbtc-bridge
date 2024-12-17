@@ -22,6 +22,6 @@ export const checkAvailableWallets: () => Promise<{
   return {
     leather: isLeather,
     xverse: isXverse,
-    asigna: true
+    asigna: window.top !== window.self,
   };
 };

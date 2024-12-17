@@ -37,6 +37,7 @@ const WALLET_PROVIDERS = [
     image: "/images/AsignaMultisig.svg",
     name: "Asigna Multisig",
     walletProvider: WalletProvider.ASIGNA,
+    installUrl: "https://btc.asigna.io",
   },
 ];
 
@@ -65,13 +66,6 @@ const ConnectWallet = ({ onClose }: ConnectWalletProps) => {
 
   const handleSelectWallet = async (wallet: WalletProvider) => {
     try {
-      const isInIframe = window.top !== window.self;
-      if (wallet === WalletProvider.ASIGNA && !isInIframe) {
-        window.open('https://btc.asigna.io');
-        throw new Error(
-          `Please open this app via the Asigna Multisig website.`,
-        );
-      }
       let addresses: Awaited<ReturnType<getAddresses>> | null = null;
       switch (wallet) {
         case WalletProvider.LEATHER:
@@ -171,8 +165,13 @@ const ConnectWallet = ({ onClose }: ConnectWalletProps) => {
                     alt={provider.name}
                   />
                   <p className="ml-4 text-black">
-                    {provider.name}{" "}
-                    {!available && " is not available click to install"}
+                    {provider.walletProvider === WalletProvider.ASIGNA 
+                      ? 'Please open this app via the Asigna Multisig website' 
+                      : <>
+                        {provider.name}{""}
+                        {!available && " is not available click to install"}
+                      </>
+                    }
                   </p>
                 </div>
                 {available ? (
