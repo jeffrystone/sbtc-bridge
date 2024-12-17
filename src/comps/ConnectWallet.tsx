@@ -166,7 +166,7 @@ const ConnectWallet = ({ onClose }: ConnectWalletProps) => {
                   />
                   <p className="ml-4 text-black">
                     {provider.walletProvider === WalletProvider.ASIGNA 
-                      ? 'Please open this app via the Asigna Multisig website' 
+                      ? 'Open as an embedded app in Asigna' 
                       : <>
                         {provider.name}{""}
                         {!available && " is not available click to install"}
