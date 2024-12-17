@@ -7,6 +7,7 @@ import HistoryView from "./HistoryView";
 import { TransferAction } from "./TransferHome";
 import LandingAnimation from "./core/LandingAnimation";
 import { usePathname, useRouter } from "next/navigation";
+import { AsignaSignActionModals } from "@asigna/btc-connect";
 
 export enum SECTION {
   DEPOSIT = "DEPOSIT",
@@ -60,6 +61,7 @@ const HomeApp = () => {
         {selectedSection === SECTION.HISTORY && <HistoryView />}
         {selectedSection === SECTION.TRANSFER && <TransferAction />}
       </LandingAnimation>
+      <AsignaSignActionModals />
       <Faqs />
     </>
   );

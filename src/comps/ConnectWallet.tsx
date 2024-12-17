@@ -12,7 +12,8 @@ import { useAtomValue, useSetAtom } from "jotai";
 import { useNotifications } from "@/hooks/use-notifications";
 import { NotificationStatusType } from "./Notifications";
 import { useEffect, useState } from "react";
-import { getAddresses } from "@/util/wallet-utils/src/getAddress";
+import { getAddresses, getAddressesAsigna } from "@/util/wallet-utils/src/getAddress";
+import { useAsignaConnect } from '@asigna/btc-connect'
 
 const WALLET_PROVIDERS = [
   {
@@ -25,6 +26,11 @@ const WALLET_PROVIDERS = [
     name: "Xverse",
     walletProvider: WalletProvider.XVERSE,
   },
+  {
+    image: "/images/AsignaMultisig.svg",
+    name: "Asigna Multisig",
+    walletProvider: WalletProvider.ASIGNA,
+  },
 ];
 
 type ConnectWalletProps = {
@@ -36,15 +42,26 @@ const ConnectWallet = ({ onClose }: ConnectWalletProps) => {
   }>({
     leather: false,
     xverse: false,
+    asigna: false,
   });
   useEffect(() => {
     checkAvailableWallets().then(setAvailableWallets);
   }, []);
+
   const setWalletInfo = useSetAtom(walletInfoAtom);
   const { notify } = useNotifications();
   const { WALLET_NETWORK } = useAtomValue(bridgeConfigAtom);
+  const { connect: asignaConnect } = useAsignaConnect();
+
   const handleSelectWallet = async (wallet: WalletProvider) => {
     try {
+      const isInIframe = window.top !== window.self;
+      if (wallet === WalletProvider.ASIGNA && !isInIframe) {
+        window.open('https://btc.asigna.io');
+        throw new Error(
+          `Please open this app via the Asigna Multisig website.`,
+        );
+      }
       let addresses: Awaited<ReturnType<getAddresses>> | null = null;
       switch (wallet) {
         case WalletProvider.LEATHER:
@@ -52,6 +69,8 @@ const ConnectWallet = ({ onClose }: ConnectWalletProps) => {
           break;
         case WalletProvider.XVERSE:
           addresses = await getAddressesXverse();
+        case WalletProvider.ASIGNA:
+          addresses = await getAddressesAsigna(asignaConnect);
       }
       const isMainnetAddress =
         addresses.payment.address.startsWith("bc1") ||
@@ -96,7 +115,7 @@ const ConnectWallet = ({ onClose }: ConnectWalletProps) => {
         style={{
           backgroundColor: "#FFF5EB",
         }}
-        className=" rounded-lg  flex flex-col items-center justify-between p-6 w-full h-screen sm:h-[400px] sm:w-[340px]  shadow-lg"
+        className=" rounded-lg  flex flex-col items-center justify-between p-6 w-full h-screen sm:h-[500px] sm:w-[340px]  shadow-lg"
       >
         <div className="w-full flex flex-col gap-2 items-center justify-center">
           <Heading>Connect Wallet</Heading>
