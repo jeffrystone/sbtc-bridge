@@ -1,8 +1,13 @@
 import { motion } from "framer-motion";
 import { Heading, SubText } from "./core/Heading";
 import Image from "next/image";
-import { ArrowRightIcon } from "@heroicons/react/20/solid";
-import { bridgeConfigAtom, walletInfoAtom, WalletProvider } from "@/util/atoms";
+import { ArrowRightIcon, ArrowUpRightIcon } from "@heroicons/react/20/solid";
+import {
+  bridgeConfigAtom,
+  showTosAtom,
+  walletInfoAtom,
+  WalletProvider,
+} from "@/util/atoms";
 import {
   checkAvailableWallets,
   getAddressesLeather,
@@ -20,11 +25,13 @@ const WALLET_PROVIDERS = [
     image: "/images/leather.svg",
     name: "Leather",
     walletProvider: WalletProvider.LEATHER,
+    installUrl: "https://leather.io",
   },
   {
     image: "/images/xverse.svg",
     name: "Xverse",
     walletProvider: WalletProvider.XVERSE,
+    installUrl: "https://xverse.app",
   },
   {
     image: "/images/AsignaMultisig.svg",
@@ -49,6 +56,9 @@ const ConnectWallet = ({ onClose }: ConnectWalletProps) => {
   }, []);
 
   const setWalletInfo = useSetAtom(walletInfoAtom);
+
+  const setShowTos = useSetAtom(showTosAtom);
+
   const { notify } = useNotifications();
   const { WALLET_NETWORK } = useAtomValue(bridgeConfigAtom);
   const { connect: asignaConnect } = useAsignaConnect();
@@ -88,7 +98,10 @@ const ConnectWallet = ({ onClose }: ConnectWalletProps) => {
         addresses: addresses,
       });
       onClose();
+
+      setShowTos(true);
     } catch (error) {
+      console.warn(error);
       if (error instanceof Error) {
         error = error.message;
       }
@@ -128,27 +141,46 @@ const ConnectWallet = ({ onClose }: ConnectWalletProps) => {
           height={150}
         />
         <div className="w-full flex flex-col gap-4 items-center justify-center">
-          {WALLET_PROVIDERS.filter(
-            (provider) => availableWallets[provider.walletProvider],
-          ).map((provider, index) => {
+          {WALLET_PROVIDERS.map((provider, index) => {
+            const available = availableWallets[provider.walletProvider];
+            const openInstall = () => {
+              if (available) {
+                handleSelectWallet(provider.walletProvider);
+              } else {
+                window.open(provider.installUrl, "_blank");
+              }
+            };
+
             return (
-              <div
-                key={index}
-                onClick={() => handleSelectWallet(provider.walletProvider)}
-                className="flex items-center w-full justify-between p-3 hover:bg-gray-100 rounded cursor-pointer transition"
+              <button
+                type="button"
+                key={`wallet-${index}-${provider.walletProvider}`}
+                onClick={openInstall}
+                className={
+                  "font-Matter flex w-full items-center justify-between p-3 hover:bg-gray-100 rounded cursor-pointer transition"
+                }
               >
                 <div className="flex items-center">
                   <Image
-                    className="rounded"
+                    className={
+                      (available ? "" : "opacity-50 grayscale ") + "rounded"
+                    }
                     src={provider.image}
                     height={48}
                     width={48}
                     alt={provider.name}
                   />
-                  <p className="ml-4 text-black font-bold">{provider.name}</p>
+                  <p className="ml-4 text-black">
+                    {provider.name}{" "}
+                    {!available && " is not available click to install"}
+                  </p>
                 </div>
-                <ArrowRightIcon className="h-6 w-6" />
-              </div>
+                {available ? (
+                  <ArrowRightIcon className="h-6 w-6" />
+                ) : (
+                  <ArrowUpRightIcon className="h-8 w-8" />
+                )}
+              </button>
             );
           })}
         </div>

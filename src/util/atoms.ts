@@ -16,10 +16,13 @@ export const bridgeConfigAtom = atom<BridgeConfig>({
   BANNER_CONTENT: undefined,
   RECLAIM_LOCK_TIME: undefined,
   PUBLIC_MEMPOOL_URL: "",
+  LIVECHAT_ID: undefined,
 });
 export const depositMaxFeeAtom = atom(80000);
 
 export const showConnectWalletAtom = atom<boolean>(false);
+
+export const showTosAtom = atom<boolean>(false);
 
 export const eventsAtom = atom<NotificationEventType[]>([]);
 export enum WalletProvider {
